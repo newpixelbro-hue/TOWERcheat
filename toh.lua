@@ -564,5 +564,117 @@ local function createMenu()
             end
         end)
         UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1
-            or input.UserInputType == Enum.UserInputType.T
+                if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+end
+        -- ===== Секция =====
+    local function makeSection(text)
+        local S = Instance.new("TextLabel")
+        S.Size = UDim2.new(1, -6, 0, 26)
+        S.BackgroundTransparency = 1
+        S.Text = "— " .. text .. " —"
+        S.TextColor3 = Color3.fromRGB(255, 100, 100)
+        S.Font = Enum.Font.GothamBold
+        S.TextSize = 13
+        S.Parent = Scroll
+    end
+
+    -- ===== НАПОЛНЕНИЕ =====
+    makeSection("GAMEPLAY")
+    makeToggle("GodMode (бессмертие)", "GodMode", function(on)
+        if on then enableGodMode() end
+    end)
+    makeToggle("Fly (полёт)", "Fly", function(on)
+        if on then startFly() else stopFly() end
+    end)
+    makeToggle("Anti-Void", "AntiVoid")
+    makeToggle("Infinite Jump", "InfiniteJump")
+    makeToggle("NoClip", "NoClip")
+
+    makeSection("MOVEMENT")
+    makeToggle("Speed Hack", "SpeedHack", function(on)
+        if Hum then Hum.WalkSpeed = on and CFG.SpeedValue or 16 end
+    end)
+    makeSlider("Speed", "SpeedValue", 16, 300, 100, function(v)
+        if Hum and CFG.SpeedHack then Hum.WalkSpeed = v end
+    end)
+    makeToggle("Jump Power", "JumpPower", function(on)
+        if Hum then
+            Hum.UseJumpPower = true
+            Hum.JumpPower = on and CFG.JumpValue or 50
+        end
+    end)
+    makeSlider("JumpPower", "JumpValue", 50, 400, 120, function(v)
+        if Hum and CFG.JumpPower then Hum.JumpPower = v end
+    end)
+
+    makeSection("FLY SETTINGS")
+    makeSlider("Fly Speed", "FlySpeed", 30, 500, 120)
+
+    makeSection("ANTI-BAN / PROTECTION")
+    makeToggle("Anti-Kick", "AntiKick", function(on)
+        CFG.AntiKick = on
+    end)
+    makeToggle("Anti-AFK", "AntiAFK", function(on)
+        CFG.AntiAFK = on
+    end)
+    makeToggle("Desync Mode (тихий режим)", "DesyncMode", function(on)
+        if on then
+            CFG.SpeedHack = false
+            CFG.NoClip = false
+            CFG.FlySpeed = math.min(CFG.FlySpeed, 80)
+        end
+    end)
+
+    -- ===== ИНТЕРАКТИВ =====
+    CloseBtn.MouseButton1Click:Connect(function()
+        Main.Visible = false
+        notify("ROCKET", "Меню скрыто. Тапни 🚀")
+    end)
+
+    local minimized = false
+    local fullSize = UDim2.new(0, 300, 0, 400)
+    local miniSize = UDim2.new(0, 300, 0, 42)
+    MinBtn.MouseButton1Click:Connect(function()
+        minimized = not minimized
+        TweenService:Create(Main, TweenInfo.new(0.2), {
+            Size = minimized and miniSize or fullSize
+        }):Play()
+        Scroll.Visible = not minimized
+    end)
+
+    -- ===== Плавающая кнопка =====
+    local floating = Instance.new("TextButton")
+    floating.Size = UDim2.new(0, 55, 0, 55)
+    floating.Position = UDim2.new(0, 15, 0, 80)
+    floating.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+    floating.Text = "🚀"
+    floating.TextSize = 26
+    floating.Font = Enum.Font.GothamBold
+    floating.BorderSizePixel = 0
+    floating.Active = true
+    floating.Draggable = true
+    floating.Parent = ScreenGui
+    Instance.new("UICorner", floating).CornerRadius = UDim.new(1, 0)
+    local fstroke = Instance.new("UIStroke", floating)
+    fstroke.Color = Color3.fromRGB(255, 255, 255)
+    fstroke.Thickness = 2
+
+    floating.MouseButton1Click:Connect(function()
+        Main.Visible = not Main.Visible
+    end)
+
+    return ScreenGui
+end
+
+-- ================== СТАРТ ==================
+installAnticheatBypass()
+createMenu()
+
+if CFG.GodMode then enableGodMode() end
+
+notify("ROCKET v3", "Загружено. 🚀 — открыть меню.")
+print("[ROCKET] ToH v3 loaded | Mobile mode")
